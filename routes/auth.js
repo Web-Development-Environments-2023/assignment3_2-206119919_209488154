@@ -7,7 +7,24 @@ const bcrypt = require("bcrypt");
 router.post("/Register", async (req, res, next) => {
   try {
     // parameters exists
+    if (!req.body.username || !req.body.password || !req.body.firstname || !req.body.lastname || !req.body.country || !req.body.email) {
+      res.status(400).send({message: "Please fill out all required register fields."});
+    }
     // valid parameters
+    const usernameRegex = new RegExp("^[a-zA-Z]+$");
+    const passwordRegex = new RegExp("^(?=.*[0-9])(?=.*[!@#\$%\^&\*\(\)_\+\-\=\[\]\{\};':\"\\|,\.\<\>\/\?]).*$");
+    if (req.body.username.length < 3 || req.body.username.length > 8) {
+      res.status(400).send({message: "Username must be 3-8 characters long."});
+    }
+    if (!req.body.username.match(usernameRegex)) {
+      res.status(400).send({message: "Username must contain only English letters."});
+    }
+    if (req.body.password.length < 5 || req.body.password.length > 10) {
+      res.status(400).send({message: "Password must be 5-10 characters long."});
+    }
+    if (!req.body.password.match(passwordRegex)) {
+      res.status(400).send({message: "Password must contain at least one number and one special character."});
+    }
     // username exists
     let user_details = {
       username: req.body.username,
