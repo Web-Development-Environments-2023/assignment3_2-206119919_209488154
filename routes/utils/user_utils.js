@@ -23,11 +23,20 @@ async function getWatchedRecipes(user_id){
 async function createRecipe(user_id, recipe) {
     const {title, readyInMinutes, image, vegan, vegetarian, glutenFree, servings, extendedIngredients, instructions} = recipe;
     const recipe_id = recipe_id_sequence++;
-    await DButils.execQuery(`INSERT INTO User_Recipes VALUES ('${user_id}','${recipe_id}','${title}','${readyInMinutes}','${image}','${vegan}','${vegetarian}','${glutenFree}','${servings}','${extendedIngredients}','${instructions}')`);
+    await DButils.execQuery(`INSERT INTO User_Recipes VALUES ('${user_id}','${recipe_id}','${title}','${readyInMinutes}','${image}','${vegan}','${vegetarian}','${glutenFree}','${servings}','${extendedIngredients}')`);
+    
+    instructions.forEach(async (instruction, index) => {
+        await DButils.execQuery(`INSERT INTO Recipe_Instructions VALUE ('${index + 1}', '${instruction}', '${recipe_id}')`);        
+    });
 }
 
 async function getCreatedRecipes(user_id) {
     const recipes = await DButils.execQuery(`select * from User_Recipes where user_id='${user_id}'`);
+    
+    recipes.forEach(async recipe => {
+        recipe.instructions = await DButils.execQuery(`SELECT * FROM Recipe_Instructions WHERE recipe_id = '${recipe.recipe_id}'`);
+    });
+
     return recipes;
 }
 
