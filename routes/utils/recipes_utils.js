@@ -64,8 +64,21 @@ async function getFamilyRecipes(){
     return recipes;
 }
 
+async function getRandomRecipes(){
+    const randomRecipes = await axios.get(`${api_domain}/random`, {
+        params: {
+            number: 3,
+            apiKey: process.env.spooncular_apiKey
+        }
+    });
+
+    const randomIds = randomRecipes.map(({id}) => id);
+    return getRecipesPreview(randomIds);
+}
+
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.getRecipesPreview = getRecipesPreview;
 exports.getRecipeById = getRecipeById;
 exports.getFamilyRecipes = getFamilyRecipes;
+exports.getRandomRecipes = getRandomRecipes;

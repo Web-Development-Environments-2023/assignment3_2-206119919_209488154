@@ -40,4 +40,16 @@ router.get("/family", async (req, res, next) => {
   }
 });
 
+/**
+ * This path returns 3 random recipes
+ */
+router.get("/random", async (req, res, next) => {
+  try {
+    res.send(await recipes_utils.getRandomRecipes());
+  } catch (error) {
+    next(error);
+  }
+});
+
+
 module.exports = router;
