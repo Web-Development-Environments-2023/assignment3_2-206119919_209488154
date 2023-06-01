@@ -65,20 +65,35 @@ async function getFamilyRecipes(){
 }
 
 async function getRandomRecipes(){
-    const randomRecipes = await axios.get(`${api_domain}/random`, {
+    const {data: {recipes}} = await axios.get(`${api_domain}/random`, {
         params: {
             number: 3,
             apiKey: process.env.spooncular_apiKey
         }
     });
 
-    const randomIds = randomRecipes.map(({id}) => id);
+    const randomIds = recipes.map(({id}) => id);
     return getRecipesPreview(randomIds);
 }
 
+async function search({query, number=5, cuisine, diet, intolerance}){
+    const { data } = await axios.get(`${api_domain}/complexSearch`, {
+        params: {
+            apiKey: process.env.spooncular_apiKey,
+            query,
+            number,
+            cuisine,
+            diet,
+            intolerance
+        }
+    });
+    const preview = await getRecipesPreview(data.results.map(({id}) => id));
+    return preview;
+}
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.getRecipesPreview = getRecipesPreview;
 exports.getRecipeById = getRecipeById;
 exports.getFamilyRecipes = getFamilyRecipes;
 exports.getRandomRecipes = getRandomRecipes;
+exports.search = search;
