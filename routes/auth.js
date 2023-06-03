@@ -9,21 +9,7 @@ router.post("/Register", async (req, res, next) => {
     // parameters exists
     if (!req.body.username || !req.body.password || !req.body.firstname || !req.body.lastname || !req.body.country || !req.body.email) {
       res.status(400).send({message: "Please fill out all required register fields."});
-    }
-    // valid parameters
-    const usernameRegex = new RegExp("^[a-zA-Z]+$");
-    const passwordRegex = new RegExp("^(?=.*[0-9])(?=.*[!@#\$%\^&\*\(\)_\+\-\=\[\]\{\};':\"\\|,\.\<\>\/\?]).*$");
-    if (req.body.username.length < 3 || req.body.username.length > 8) {
-      res.status(400).send({message: "Username must be 3-8 characters long."});
-    }
-    if (!req.body.username.match(usernameRegex)) {
-      res.status(400).send({message: "Username must contain only English letters."});
-    }
-    if (req.body.password.length < 5 || req.body.password.length > 10) {
-      res.status(400).send({message: "Password must be 5-10 characters long."});
-    }
-    if (!req.body.password.match(passwordRegex)) {
-      res.status(400).send({message: "Password must contain at least one number and one special character."});
+      return;
     }
     // username exists
     let user_details = {
@@ -36,19 +22,18 @@ router.post("/Register", async (req, res, next) => {
       profilePic: req.body.profilePic
     }
     let users = [];
-    users = await DButils.execQuery("SELECT username from users");
+    users = await DButils.execQuery("SELECT username FROM users");
 
-    if (users.find((x) => x.username === user_details.username))
+    if (users.find((x) => x.username === user_details.username)) {
       throw { status: 409, message: "Username taken" };
-
+    }
     // add the new username
     let hash_password = bcrypt.hashSync(
       user_details.password,
       parseInt(process.env.bcrypt_saltRounds)
     );
     await DButils.execQuery(
-      `INSERT INTO users VALUES ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
-      '${user_details.country}', '${hash_password}', '${user_details.email}')`
+      `INSERT INTO users(username, firstname, lastname, country, password, email) VALUES('${user_details.username}','${user_details.firstname}','${user_details.lastname}','${user_details.country}', '${hash_password}', '${user_details.email}')`
     );
     res.status(201).send({ message: "user created", success: true });
   } catch (error) {
@@ -66,7 +51,7 @@ router.post("/Login", async (req, res, next) => {
     // check that the password is correct
     const user = (
       await DButils.execQuery(
-        `SELECT * FROM users WHERE username = '${req.body.username}'`
+        `SELECT * FROM users WHERE username='${req.body.username}'`
       )
     )[0];
 

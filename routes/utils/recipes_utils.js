@@ -60,7 +60,7 @@ async function getRecipeById(recipe_id) {
 }
 
 async function getFamilyRecipes(){
-    const recipes = await DButils.execQuery(`select * from Family_Recipes`);
+    const recipes = await DButils.execQuery(`SELECT * FROM family_recipes`);
     return recipes;
 }
 

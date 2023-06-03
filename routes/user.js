@@ -118,7 +118,6 @@ router.post('/created', async (req,res,next) => {
 router.get('/created', async (req,res,next) => {
   try{
     const user_id = req.session.user_id;
-    
     const recipes = await user_utils.getCreatedRecipes(user_id);
     res.status(200).send(recipes);
   } catch(error){
