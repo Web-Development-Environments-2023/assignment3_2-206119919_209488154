@@ -106,7 +106,7 @@ router.post('/created', async (req,res,next) => {
     const recipe = req.body.recipe;
     await user_utils.createRecipe(user_id, recipe);
     res.status(200).send("The Recipe was successfully created");
-    } catch(error){
+  } catch(error){
     next(error);
   }
 })
