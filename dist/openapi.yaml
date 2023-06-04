@@ -226,5 +226,4 @@ components:
         glutenFree:
           type: boolean
           description: indication if the recipe is gluten free
-          example: false
-  
+          example: false
