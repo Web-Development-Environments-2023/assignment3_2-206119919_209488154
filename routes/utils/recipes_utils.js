@@ -29,7 +29,7 @@ async function getRecipeDetails(recipe_id) {
         title: title,
         readyInMinutes: readyInMinutes,
         image: image,
-        popularity: aggregateLikes,
+        aggregateLikes: aggregateLikes,
         vegan: vegan,
         vegetarian: vegetarian,
         glutenFree: glutenFree,
@@ -48,20 +48,34 @@ async function getRecipesPreview(recipes_id_array) {
     return preview_array;
 }
 
+
+const checkIsCreated = async (user_id, recipe_id) => {
+    const createdRecipes = await DButils.execQuery(`SELECT * FROM user_recipes WHERE user_id='${user_id}' AND id='${recipe_id}'`);
+    return createdRecipes.length;
+}
+
 /**
  * Get all recipe data
  * @param {*} recipe_id 
  */
-async function getRecipeById(recipe_id) {
-    const recipe_info = await getRecipeInformation(recipe_id);
-    const { title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, servings, extendedIngredients, instructions } = recipe_info.data;
+async function getRecipeById(user_id, recipe_id) {
+    const isCreated = await checkIsCreated(user_id, recipe_id);
+    let recipe_info;
+    if(isCreated) {
+        recipe_info = await getCreatedRecipeById(recipe_id);
+    } else {
+        const res = await getRecipeInformation(recipe_id);
+        recipe_info = res.data;
+    }
+    
+    const { title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, servings, extendedIngredients, instructions } = recipe_info;
 
     return {
         id: recipe_id,
         title,
         readyInMinutes,
         image,
-        popularity,
+        aggregateLikes,
         vegan,
         vegetarian,
         glutenFree,
@@ -69,6 +83,29 @@ async function getRecipeById(recipe_id) {
         extendedIngredients,
         instructions
     }
+}
+
+/**
+ * Get all created recipe data
+ * @param {*} recipe_id 
+ */
+async function getCreatedRecipeById(recipe_id) {
+    return (await DButils.execQuery(`SELECT * FROM user_recipes WHERE id = ${recipe_id}`))[0];
+    // const { title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, servings, extendedIngredients, instructions } = recipe_info;
+
+    // return {
+    //     id: recipe_id,
+    //     title,
+    //     readyInMinutes,
+    //     image,
+    //     aggregateLikes,
+    //     vegan,
+    //     vegetarian,
+    //     glutenFree,
+    //     servings,
+    //     extendedIngredients,
+    //     instructions
+    // }
 }
 
 /**
@@ -102,7 +139,7 @@ async function getRandomRecipes(){
  * @param {*} diet
  * @param {*} intolerance
  */
-async function search({query, number=5, cuisine, diet, intolerance}){
+async function search({query, number=5, cuisine, diet, intolerances}){
     const { data } = await axios.get(`${api_domain}/complexSearch`, {
         params: {
             apiKey: process.env.spooncular_apiKey,
@@ -110,7 +147,7 @@ async function search({query, number=5, cuisine, diet, intolerance}){
             number,
             cuisine,
             diet,
-            intolerance
+            intolerances
         }
     });
     const preview = await getRecipesPreview(data.results.map(({id}) => id));
@@ -120,6 +157,7 @@ async function search({query, number=5, cuisine, diet, intolerance}){
 exports.getRecipeDetails = getRecipeDetails;
 exports.getRecipesPreview = getRecipesPreview;
 exports.getRecipeById = getRecipeById;
+exports.getCreatedRecipeById = getCreatedRecipeById;
 exports.getFamilyRecipes = getFamilyRecipes;
 exports.getRandomRecipes = getRandomRecipes;
 exports.search = search;

@@ -211,7 +211,7 @@ components:
           type: integer
           description: the time takes to make this recipe
           example: 45
-        popularity:
+        aggregateLikes:
           type: integer
           description: how many likes got this recipe
           example: 5987
@@ -226,4 +226,4 @@ components:
         glutenFree:
           type: boolean
           description: indication if the recipe is gluten free
-          example: false
+          example: false

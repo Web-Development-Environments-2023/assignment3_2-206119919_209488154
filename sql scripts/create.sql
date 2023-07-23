@@ -19,7 +19,7 @@ CREATE TABLE
 CREATE TABLE
     user_recipes (
         user_id INT,
-        recipe_id INT AUTO_INCREMENT PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
         image VARCHAR(255),
         title VARCHAR(255),
         readyInMinutes INT,

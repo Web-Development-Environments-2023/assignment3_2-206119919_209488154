@@ -10,11 +10,15 @@ const recipe_utils = require("./utils/recipes_utils");
 router.use(async function (req, res, next) {
   if (req.session && req.session.user_id) {
     DButils.execQuery("SELECT user_id FROM users").then((users) => {
+
       if (users.find((x) => x.user_id === req.session.user_id)) {
         req.user_id = req.session.user_id;
         next();
       }
-    }).catch(err => next(err));
+    }).catch(err => {
+      console.log("ERROR: ", err);
+      next(err);
+    });
   } else {
     res.sendStatus(401);
   }
@@ -59,7 +63,7 @@ router.get('/favorites', async (req,res,next) => {
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
     const results = await recipe_utils.getRecipesPreview(recipes_id_array);
-    res.status(200).send(results);
+    res.status(200).send(await DButils.setMetaFields(results, user_id));
   } catch(error){
     next(error); 
   }
@@ -90,7 +94,7 @@ router.get('/watched', async (req,res,next) => {
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
     const results = await recipe_utils.getRecipesPreview(recipes_id_array);
-    res.status(200).send(results);
+    res.status(200).send(await DButils.setMetaFields(results, user_id));
   } catch(error){
     next(error); 
   }
@@ -109,7 +113,7 @@ router.post('/created', async (req,res,next) => {
   } catch(error){
     next(error);
   }
-})
+});
 
 
 /**
@@ -119,7 +123,7 @@ router.get('/created', async (req,res,next) => {
   try{
     const user_id = req.session.user_id;
     const recipes = await user_utils.getCreatedRecipes(user_id);
-    res.status(200).send(recipes);
+    res.status(200).send(await DButils.setMetaFields(recipes, user_id));
   } catch(error){
     next(error); 
   }

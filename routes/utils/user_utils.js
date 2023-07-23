@@ -49,6 +49,7 @@ async function createRecipe(user_id, recipe) {
     extendedIngredients = JSON.stringify(extendedIngredients);
     const recipe_id = recipe_id_sequence++;
     await DButils.execQuery(`INSERT INTO user_recipes VALUES('${user_id}','${recipe_id}','${image}','${title}','${readyInMinutes}','${vegan}','${vegetarian}','${glutenFree}','${aggregateLikes}','${instructions}','${servings}','${extendedIngredients}')`);    
+    await markAsWatched(user_id, recipe_id);
 }
 
 /**
