@@ -7,7 +7,10 @@ const bcrypt = require("bcrypt");
 router.post("/Register", async (req, res, next) => {
   try {
     // parameters exists
-    // valid parameters
+    if (!req.body.username || !req.body.password || !req.body.firstname || !req.body.lastname || !req.body.country || !req.body.email) {
+      res.status(400).send({message: "Please fill out all required register fields."});
+      return;
+    }
     // username exists
     let user_details = {
       username: req.body.username,
@@ -19,19 +22,18 @@ router.post("/Register", async (req, res, next) => {
       profilePic: req.body.profilePic
     }
     let users = [];
-    users = await DButils.execQuery("SELECT username from users");
+    users = await DButils.execQuery("SELECT username FROM users");
 
-    if (users.find((x) => x.username === user_details.username))
+    if (users.find((x) => x.username === user_details.username)) {
       throw { status: 409, message: "Username taken" };
-
+    }
     // add the new username
     let hash_password = bcrypt.hashSync(
       user_details.password,
       parseInt(process.env.bcrypt_saltRounds)
     );
     await DButils.execQuery(
-      `INSERT INTO users VALUES ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
-      '${user_details.country}', '${hash_password}', '${user_details.email}')`
+      `INSERT INTO users(username, firstname, lastname, country, password, email) VALUES('${user_details.username}','${user_details.firstname}','${user_details.lastname}','${user_details.country}', '${hash_password}', '${user_details.email}')`
     );
     res.status(201).send({ message: "user created", success: true });
   } catch (error) {
@@ -49,7 +51,7 @@ router.post("/Login", async (req, res, next) => {
     // check that the password is correct
     const user = (
       await DButils.execQuery(
-        `SELECT * FROM users WHERE username = '${req.body.username}'`
+        `SELECT * FROM users WHERE username='${req.body.username}'`
       )
     )[0];
 
@@ -59,8 +61,7 @@ router.post("/Login", async (req, res, next) => {
 
     // Set cookie
     req.session.user_id = user.user_id;
-
-
+    
     // return cookie
     res.status(200).send({ message: "login succeeded", success: true });
   } catch (error) {
