@@ -91,21 +91,6 @@ async function getRecipeById(user_id, recipe_id) {
  */
 async function getCreatedRecipeById(recipe_id) {
     return (await DButils.execQuery(`SELECT * FROM user_recipes WHERE id = ${recipe_id}`))[0];
-    // const { title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, servings, extendedIngredients, instructions } = recipe_info;
-
-    // return {
-    //     id: recipe_id,
-    //     title,
-    //     readyInMinutes,
-    //     image,
-    //     aggregateLikes,
-    //     vegan,
-    //     vegetarian,
-    //     glutenFree,
-    //     servings,
-    //     extendedIngredients,
-    //     instructions
-    // }
 }
 
 /**
